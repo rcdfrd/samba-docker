@@ -1,10 +1,11 @@
 FROM alpine AS wsdd2-builder
 
-RUN apk add --no-cache make gcc libc-dev linux-headers && wget -O - https://github.com/Netgear/wsdd2/archive/refs/heads/master.tar.gz | tar zxvf - \
+RUN apk add --no-cache make gcc libc-dev linux-headers \
+ && wget -O - https://github.com/Netgear/wsdd2/archive/refs/heads/master.tar.gz | tar zxvf - \
  && cd wsdd2-master && make
-
+ 
 FROM alpine
-# alpine:3.14
+# alpine:3.16
 
 COPY --from=wsdd2-builder /wsdd2-master/wsdd2 /usr/sbin
 
@@ -23,11 +24,11 @@ RUN apk add --no-cache runit \
 
 VOLUME ["/shares"]
 
-EXPOSE 139 445
+EXPOSE 139 445 3702
 
 COPY . /container/
 
 HEALTHCHECK CMD ["/container/scripts/docker-healthcheck.sh"]
 ENTRYPOINT ["/container/scripts/entrypoint.sh"]
 
-CMD [ "runsvdir","-P", "/container/config/runit" ]
+CMD [ "runsvdir", "-P", "/container/config/runit" ]

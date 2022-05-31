@@ -1,6 +1,7 @@
 #!/bin/sh
 
-export IFS=$'\n'
+IFS=$(printf '\n')
+export IFS
 
 cat <<EOF
 ################################################################################
@@ -22,6 +23,14 @@ if [ ! -f "$INITALIZED" ]; then
   ##
   # MAIN CONFIGURATION
   ##
+
+  if [ -z ${SAMBA_CONF_LOG_FILE+x} ]
+  then
+    SAMBA_CONF_LOG_FILE="/dev/stdout"
+    echo ">> SAMBA CONFIG: no \$SAMBA_CONF_LOG_FILE set, using '$SAMBA_CONF_LOG_FILE'"
+  fi
+  echo '   log file =  '"$SAMBA_CONF_LOG_FILE" >> /etc/samba/smb.conf
+
   if [ -z ${SAMBA_CONF_LOG_LEVEL+x} ]
   then
     SAMBA_CONF_LOG_LEVEL="1"
@@ -45,10 +54,11 @@ if [ ! -f "$INITALIZED" ]; then
 
   if [ -z ${SAMBA_CONF_MAP_TO_GUEST+x} ]
   then
-    SAMBA_CONF_MAP_TO_GUEST="Bad User"
+    # SAMBA_CONF_MAP_TO_GUEST="Bad User"
     echo ">> SAMBA CONFIG: no \$SAMBA_CONF_MAP_TO_GUEST set, using '$SAMBA_CONF_MAP_TO_GUEST'"
+  else
+    echo '   map to guest = '"$SAMBA_CONF_MAP_TO_GUEST" >> /etc/samba/smb.conf
   fi
-  echo '   map to guest = '"$SAMBA_CONF_MAP_TO_GUEST" >> /etc/samba/smb.conf
 
   ##
   # GLOBAL CONFIGURATION
